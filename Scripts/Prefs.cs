@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
-using UnityEngine.InputSystem.Interactions;
 
 // просто чтобы легче было контролировать вызовы обёртки
 public static class Prefs {
