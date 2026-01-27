@@ -30,7 +30,7 @@ namespace KulibinSpace.GamePrefs {
             var sb = new StringBuilder();
             sb.AppendLine("using UnityEngine;");
             sb.AppendLine();
-            sb.AppendLine("namespace KulibinSpace.GamePrefs { public static class GamePrefs {");
+            sb.AppendLine("namespace KulibinSpace.GamePrefs { public static class GamePrefsCompiled {");
 
             var saveCalls = new StringBuilder();
             var loadLines = new StringBuilder();
@@ -71,7 +71,7 @@ namespace KulibinSpace.GamePrefs {
             sb.AppendLine("        Prefs.Save(); }");
             sb.AppendLine("}}");
 
-            string path = "Assets/GamePrefs/GamePrefs.cs";
+            string path = "Assets/Generated/GamePrefsCompiled.cs";
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
             AssetDatabase.Refresh();
