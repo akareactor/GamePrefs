@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,55 +16,44 @@ namespace KulibinSpace.GamePrefs {
             public string fieldName;
             public Type type;
             public object defaultValue;
-
-            public string declaringType;     // Namespace.Type
-            public string assemblyName;      // Assembly-CSharp
-            public string assetPath;         // Assets/...
+            public string declaringType;
+            public string assemblyName;
+            public string assetPath;
         }
 
         public static IEnumerable<PrefInfo> CollectAllPrefs() {
 
+            var targetAsm = typeof(PrefAttribute).Assembly.GetName().Name;
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             foreach (var assembly in assemblies) {
 
-                // Ограничим поиск только игровыми сборками
-                if (!assembly.FullName.StartsWith("Assembly-CSharp"))
-                    continue;
+                var asmName = assembly.GetName().Name;
+                if (asmName.StartsWith("Unity") || asmName.StartsWith("System") || asmName.StartsWith("mscorlib") || asmName.StartsWith("netstandard") || asmName.StartsWith("nunit")) continue;
+                if (asmName != targetAsm && !assembly.GetReferencedAssemblies().Any(a => a.Name == targetAsm)) continue;
 
                 Type[] types;
-
-                try {
-                    types = assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException e) {
-                    types = e.Types;
-                }
+                try { types = assembly.GetTypes(); }
+                catch (ReflectionTypeLoadException e) { types = e.Types.Where(t => t != null).ToArray(); }
 
                 foreach (var type in types) {
-                    if (type == null) continue;
-
                     var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
-
                     foreach (var field in fields) {
-
                         var attr = field.GetCustomAttribute<PrefAttribute>();
                         if (attr == null) continue;
-
 #if UNITY_EDITOR
-                        string assetPath = GetScriptPath(type);
+                        string path = GetScriptPath(type);
 #else
-                        string assetPath = "Runtime";
+                        string path = "Runtime";
 #endif
-
                         yield return new PrefInfo {
                             key = attr.key,
                             fieldName = field.Name,
                             type = field.FieldType,
                             defaultValue = attr.defaultValue,
                             declaringType = type.FullName,
-                            assemblyName = assembly.GetName().Name,
-                            assetPath = assetPath
+                            assemblyName = asmName,
+                            assetPath = path
                         };
                     }
                 }
@@ -72,19 +62,13 @@ namespace KulibinSpace.GamePrefs {
 
 #if UNITY_EDITOR
         static string GetScriptPath(Type type) {
-
-            // Ищем MonoScript по имени класса
             var guids = AssetDatabase.FindAssets($"t:MonoScript {type.Name}");
-
             foreach (var guid in guids) {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
-
-                if (script != null && script.GetClass() == type)
-                    return path;
+                if (script != null && script.GetClass() == type) return path;
             }
-
-            return "Unknown path";
+            return "Unknown";
         }
 #endif
     }

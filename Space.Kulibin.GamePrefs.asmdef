@@ -1,3 +1,14 @@
 {
-	"name": "KulibinSpace.GamePrefs"
+    "name": "Space.Kulibin.GamePrefs",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
