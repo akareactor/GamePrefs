@@ -1,6 +1,6 @@
 {
 	"name": "space.kulibin.gameprefs",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"displayName": "Kulibin Game Prefs",
 	"description": "Game preferences isolation",
 	"author": {
